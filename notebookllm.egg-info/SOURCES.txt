@@ -1,0 +1,12 @@
+README.md
+cli.py
+pyproject.toml
+setup.py
+notebookllm/__init__.py
+notebookllm/notebookllm.py
+notebookllm.egg-info/PKG-INFO
+notebookllm.egg-info/SOURCES.txt
+notebookllm.egg-info/dependency_links.txt
+notebookllm.egg-info/entry_points.txt
+notebookllm.egg-info/requires.txt
+notebookllm.egg-info/top_level.txt
