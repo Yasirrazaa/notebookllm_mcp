@@ -95,7 +95,7 @@ Here’s how to install and run the `notebookllm` MCP server:
 
 `uvx` allows you to run the server directly from its PyPI package without needing to install it into your global or project Python environment. This is ideal for quickly using the server with clients like Claude Desktop or VS Code.
 
-*   To run the server (assuming `notebookllm` is published to PyPI and provides a `notebookllm-server` command):
+*   To run the server:
     ```bash
     uvx notebookllm-server
     ```
