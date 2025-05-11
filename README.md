@@ -1,4 +1,6 @@
 # notebookllm
+![PyPI](https://img.shields.io/pypi/v/notebookllm?label=pypi%20package)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/notebookllm)
 
 A Python package to bridge the gap between Jupyter Notebooks and Large Language Models (LLMs). It reduces token usage,cost and makesit easy for llms to work with large notebooks by providing only the actual code omitting the cell metadata.
 
