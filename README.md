@@ -1,5 +1,5 @@
 # notebookllm
-![notebookllm] (https://pypi.org/project/notebookllm/)
+![notebookllm](https://pypi.org/project/notebookllm/)
 ![PyPI](https://img.shields.io/pypi/v/notebookllm?label=pypi%20package)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/notebookllm)
 
