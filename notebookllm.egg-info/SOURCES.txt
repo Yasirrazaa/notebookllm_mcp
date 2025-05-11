@@ -1,7 +1,6 @@
 README.md
 cli.py
 pyproject.toml
-setup.py
 notebookllm/__init__.py
 notebookllm/notebookllm.py
 notebookllm.egg-info/PKG-INFO
