@@ -1,3 +1,0 @@
-nbformat
-jupyter_client
-mcp[cli]

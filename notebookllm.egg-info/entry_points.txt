@@ -1,3 +1,0 @@
-[console_scripts]
-notebookllm = cli:main
-notebookllm-server = mcp_server:main_cli

@@ -1,13 +1,11 @@
-# filepath: /home/yasir/Documents/notebookllm/mcp_server.py
-from mcp.server.fastmcp import FastMCP
-from notebookllm.notebookllm import Notebook
 import os
+from mcp.server.fastmcp import FastMCP  # Add MCP import
+from notebookllm import Notebook
 
-# Create an MCP server
+
 mcp = FastMCP(name="NotebookLLMServer", description="A server to efficiently interact with Jupyter Notebooks by converting them to token-friendly plain text. This process significantly saves costs and improves processing speed when working with LLMs.")
 
 # Store the loaded notebook in memory.
-# For a production server, you might want a more robust way to handle multiple users/notebooks.
 loaded_notebook: Notebook | None = None
 loaded_notebook_path: str | None = None
 
@@ -168,11 +166,8 @@ def save_loaded_notebook(output_filepath: str | None = None) -> str:
     except Exception as e:
         return f"Error saving notebook: {str(e)}"
 
-def main_cli():
-    # This allows you to run the server directly for testing, e.g., with 'mcp dev mcp_server.py'
-    # or 'python mcp_server.py' if you have mcp[cli] installed.
-    # It's also the entry point for the 'notebookllm-server' console script.
-    mcp.run()
+def main():
+    mcp.run(transport="stdio")
 
 if __name__ == "__main__":
-    main_cli()
+    main()

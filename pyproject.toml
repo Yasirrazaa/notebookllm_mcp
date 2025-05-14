@@ -1,28 +1,14 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-backend-path = ["."] # Ensures setuptools can find local configurations if needed
-
 [project]
-name = "notebookllm"
-version = "2.0"
-description = "Convert Jupyter notebooks to/from plain text for LLMs, and expose functionality via an MCP server."
+name = "notebookllm-mcp"
+version = "0.4.0"
+description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10" # You can adjust this if needed
-license = { file = "LICENSE" } # Consider creating a LICENSE file (e.g., MIT)
-authors = [
-    { name = "Yasir Raza", email = "yasirabdali6@gmail.com" } 
-]
-keywords = ["jupyter", "notebook", "llm", "conversion", "mcp", "cli"]
-
+requires-python = ">=3.11"
 dependencies = [
-    "nbformat",
-    "jupyter_client",
-    "mcp[cli]"
+    "mcp[cli]>=1.8.1",
+    "notebookllm>=1.1.0",
 ]
 
 [project.scripts]
-notebookllm = "cli:main"
-notebookllm-server = "mcp_server:main_cli"
+notebookllm_mcp = "mcp_server:main"
 
-# Optional: If you want to be more explicit about package discovery for setuptools

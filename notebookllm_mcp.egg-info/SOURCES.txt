@@ -1,0 +1,9 @@
+README.md
+mcp_server.py
+pyproject.toml
+notebookllm_mcp.egg-info/PKG-INFO
+notebookllm_mcp.egg-info/SOURCES.txt
+notebookllm_mcp.egg-info/dependency_links.txt
+notebookllm_mcp.egg-info/entry_points.txt
+notebookllm_mcp.egg-info/requires.txt
+notebookllm_mcp.egg-info/top_level.txt

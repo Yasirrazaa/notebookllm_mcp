@@ -1,269 +1,227 @@
-# notebookllm : https://pypi.org/project/notebookllm
+# NotebookLLM MCP Server
 
+A Model Context Protocol server for working with Jupyter Notebooks (`.ipynb` files) in a way that is efficient for Large Language Models (LLMs). It converts notebooks to a simplified plain text format to reduce token usage and cost, and can convert them back.
 
-![PyPI](https://img.shields.io/pypi/v/notebookllm?label=pypi%20package)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/notebookllm)
+## Available Tools
 
-A Python package to bridge the gap between Jupyter Notebooks and Large Language Models (LLMs). It reduces token usage,cost and makesit easy for llms to work with large notebooks by providing only the actual code omitting the cell metadata.
-
-## Why this package?
-
-Current Large Language Models (LLMs) struggles when working with `.ipynb` files. Working with raw `.ipynb` files with LLMs often leads to heavy token usage, increased costs, and challenges with context window limitations due to the verbose JSON structure and metadata. This package provides a solution by converting `.ipynb` files to a simplified plain text format that LLMs can easily understand, significantly reducing token count. It also allows converting Python files back to `.ipynb` files.
-
-## Features
-
-- Convert `.ipynb` files to a simplified plain text (.py, .txt or .r file) format.
-- Convert Python or R (.py, .txt or .r files) to `.ipynb` files.
-- The plain text (.py, .txt or .r) format preserves the structure of the notebook, including code and markdown cells, using `# %% [code]` and `# %% [markdown]` identifiers.
-- The plain text (.py, .txt or .r) format can be easily parsed back into a `.ipynb` file.
+*   **`load_notebook`**: Loads a `.ipynb` file into memory.
+    *   **Arguments**:
+        *   `filepath` (string): The absolute path to the `.ipynb` file.
+    *   **Returns**: (string) Success or failure message, including cell count.
+*   **`notebook_to_plain_text`**: Converts a `.ipynb` file (loaded or from path) to a simplified plain text representation.
+    *   **Arguments**:
+        *   `input_filepath` (string, optional): Absolute path to the `.ipynb` file for on-the-fly conversion.
+    *   **Returns**: (string) Plain text representation or error message.
+*   **`plain_text_to_notebook_file`**: Converts plain text content back to a `.ipynb` file and saves it.
+    *   **Arguments**:
+        *   `plain_text_content` (string): Plain text content to convert.
+        *   `output_filepath` (string): Absolute path to save the `.ipynb` file (must end with `.ipynb`).
+    *   **Returns**: (string) Success or failure message.
+*   **`add_code_cell_to_loaded_notebook`**: Adds a new code cell to the currently loaded notebook.
+    *   **Arguments**:
+        *   `code_content` (string): Source code for the new cell.
+        *   `position` (integer, optional): Position to insert the cell (appends if `null`).
+    *   **Returns**: (string) Success or failure message and current cell count.
+*   **`add_markdown_cell_to_loaded_notebook`**: Adds a new markdown cell to the currently loaded notebook.
+    *   **Arguments**:
+        *   `markdown_content` (string): Markdown content for the new cell.
+        *   `position` (integer, optional): Position to insert the cell (appends if `null`).
+    *   **Returns**: (string) Success or failure message and current cell count.
+*   **`save_loaded_notebook`**: Saves the currently loaded notebook to a file.
+    *   **Arguments**:
+        *   `output_filepath` (string, optional): Absolute path to save the `.ipynb` file (must end with `.ipynb`). Saves to original path if `null`.
+    *   **Returns**: (string) Success or failure message.
 
 ## Installation
 
-```bash
-pip install notebookllm
-```
-or 
+### Using uv (recommended)
+
+When using [`uv`](https://docs.astral.sh/uv/), no specific installation is needed. We will use [`uvx`](https://docs.astral.sh/uv/guides/tools/) to directly run `notebookllm_mcp`.
+
+### Using PIP
+
+Alternatively, you can install `notebookllm_mcp` via pip:
 
 ```bash
-git clone https://github.com/yasirrazaa/notebookllm.git
-cd notebookllm
-pip install .  
+pip install notebookllm-mcp
 ```
 
-## Usage
-## CLI
-
-### `to_text`
-
-Converts a `.ipynb` file to a simplified plain text format.
-
-Usage:
+After installation, you can run it as a script using:
 
 ```bash
-notebookllm to_text <ipynb_file> --output <output_file>
+python -m notebookllm_mcp
 ```
 
-- `<ipynb_file>`: Path to the `.ipynb` file.
-- `--output <output_file>`: Path to save the plain text output. If not provided, the output will be printed to the console.
+## Configuration
 
-Example:
+### Configure for Claude.app
 
-```bash
-notebookllm to_text my_notebook.ipynb --output my_notebook.txt
+Add to your Claude settings:
+
+**Using uvx**
+```json
+{
+  "mcpServers": {
+    "notebookllm": {
+      "command": "uvx",
+      "args": ["notebookllm_mcp"]
+    }
+  }
+}
 ```
 
-### `to_ipynb`
-
-Converts a `.py` file to a `.ipynb` file.
-
-Usage:
-
-```bash
-notebookllm to_ipynb <py_file> --output <output_file>
+**Using pip installation**
+```json
+{
+  "mcpServers": {
+    "notebookllm": {
+      "command": "python",
+      "args": ["-m", "notebookllm_mcp"]
+    }
+  }
+}
 ```
 
-- `<py_file>`: Path to the `.py` file.
-- `--output <output_file>`: Path to save the `.ipynb` output. If not provided, the output will be saved to `output.ipynb`.
+### Configure for Zed
 
-Example:
+Add to your Zed `settings.json`:
 
-```bash
-notebookllm to_ipynb my_script.py --output my_notebook.ipynb
+**Using uvx**
+```json
+"context_servers": [
+  "notebookllm": {
+    "command": "uvx",
+    "args": ["notebookllm_mcp"]
+  }
+],
 ```
 
-## API
+**Using pip installation**
+```json
+"context_servers": {
+  "notebookllm": {
+    "command": "python",
+    "args": ["-m", "notebookllm_mcp"]
+  }
+},
+```
 
-```python
-from notebookllm import Notebook
+### Configure for VS Code
 
-notebook = Notebook(filepath='notebook.ipynb')  # Load existing notebook or create a new one
-notebook.add_code_cell('print("Hello, world!")') # Add a code cell
-notebook.add_markdown_cell('# This is a markdown cell') # Add a markdown cell
-notebook.execute_cell(0) # Execute a cell
-notebook.delete_cell(1) # Delete a cell
-notebook.add_raw_cell('{"data": {"text/plain": "This is a raw cell"}}') # Add a raw cell
-notebook.save('new_notebook.ipynb') # Save the notebook
-notebook.edit_cell(0, 'print("Hello, world!")') # Edit a cell
-notebook.save() # Save the changes
-````
+For quick installation, use one of the one-click install buttons below...
 
-## Using `notebookllm` as an MCP Server
+[![Install with UV in VS Code](https://img.shields.io/badge/VS_Code-UV-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=notebookllm&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22notebookllm_mcp%22%5D%7D) [![Install with UV in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-UV-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=notebookllm&config=%7B%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22notebookllm_mcp%22%5D%7D&quality=insiders)
 
-The `notebookllm` package includes an MCP (Model Context Protocol) server (`mcp_server.py`) that exposes notebook conversion and manipulation functionalities as tools for Large Language Models (LLMs). This allows LLMs to programmatically interact with Jupyter notebooks in a way that is token-efficient, cost-effective, and fast by focusing on plain text representations of notebook content rather than full, verbose notebook metadata.
+For manual installation, add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` (or `Cmd + Shift + P` on macOS) and typing `Preferences: Open User Settings (JSON)`.
 
-### Installation & Running the Server
+Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace. This will allow you to share the configuration with others.
+> Note that the `mcp` key is needed when using the `mcp.json` file.
 
-Here’s how to install and run the `notebookllm` MCP server:
+**Using uvx**
+```json
+{
+  "mcp": {
+    "servers": {
+      "notebookllm": {
+        "command": "uvx",
+        "args": ["notebookllm_mcp"]
+      }
+    }
+  }
+}
+```
 
-**1. Using `uvx` (Recommended for quick use)**
+**Using pip installation**
+```json
+{
+  "mcp": {
+    "servers": {
+      "notebookllm": {
+        "command": "python",
+        "args": ["-m", "notebookllm_mcp"]
+      }
+    }
+  }
+}
+```
 
-`uvx` allows you to run the server directly from its PyPI package without needing to install it into your global or project Python environment. This is ideal for quickly using the server with clients like Claude Desktop or VS Code.
+## Example Interactions
 
-*   To run the server:
-    ```bash
-    uvx notebookllm-server
-    ```
-
-**2. Using `pip` (Traditional installation)**
-
-*   Install the package from PyPI:
-    ```bash
-    pip install notebookllm
-    ```
-*   Run the server using the installed command:
-    ```bash
-    notebookllm-server
-    ```
-    *(If the package installs `mcp_server.py` as a module within the `notebookllm` package but doesn't define a direct `notebookllm-server` script, you might run it as `python -m notebookllm.mcp_server`.)*
-
-### Configuration with Clients
-
-Once the server can be run using one of the methods above, you can configure various clients to use its tools.
-
-**A. Claude Desktop**
-
-Add the following to your `claude_desktop_config.json` file (typically found at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, or `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
-
-*   **Using `uvx`:**
+1.  **Load a notebook:**
     ```json
     {
-      "mcpServers": {
-        "notebookllm": {
-          "command": "uvx",
-          "args": ["notebookllm-server"]
-        }
+      "name": "load_notebook",
+      "arguments": {
+        "filepath": "/path/to/your/notebook.ipynb"
       }
     }
     ```
-
-*   **Using `pip` installation:**
+    **Response:**
     ```json
     {
-      "mcpServers": {
-        "notebookllm": {
-          "command": "notebookllm-server", // Or full path if not in PATH, or 'python'
-          "args": [] // If using 'python', args would be ['-m', 'notebookllm.mcp_server']
-        }
-      }
+      "message": "Notebook /path/to/your/notebook.ipynb loaded successfully. Cell count: 10"
     }
     ```
 
-**B. VS Code**
-
-Add the following to your User Settings (JSON) file (`Ctrl + Shift + P` -> "Preferences: Open User Settings (JSON)") or to a `.vscode/mcp.json` file in your workspace (if using `.vscode/mcp.json`, omit the top-level `"mcp": { ... }` wrapper).
-
-*   **Using `uvx`:**
+2.  **Convert loaded notebook to plain text:**
     ```json
     {
-      "mcp": {
-        "servers": {
-          "notebookllm": {
-            "command": "uvx",
-            "args": ["notebookllm-server"]
-          }
-        }
+      "name": "notebook_to_plain_text",
+      "arguments": {}
+    }
+    ```
+    **Response:**
+    ```text
+    # CELL 1 CODE
+    print("Hello World")
+
+    # CELL 2 MARKDOWN
+    This is a markdown cell.
+    ...
+    ```
+
+3.  **Convert plain text back to a notebook file:**
+    ```json
+    {
+      "name": "plain_text_to_notebook_file",
+      "arguments": {
+        "plain_text_content": "# CELL 1 CODE\nprint(\"Hello Again\")\n\n# CELL 2 MARKDOWN\nAnother markdown cell.",
+        "output_filepath": "/path/to/your/new_notebook.ipynb"
       }
     }
     ```
-
-*   **Using `pip` installation:**
+    **Response:**
     ```json
     {
-      "mcp": {
-        "servers": {
-          "notebookllm": {
-            "command": "notebookllm-server", // Or 'python'
-            "args": [] // If using 'python', args would be ['-m', 'notebookllm.mcp_server']
-          }
-        }
-      }
+      "message": "Notebook saved to /path/to/your/new_notebook.ipynb"
     }
     ```
 
-**C. Zed Editor**
+## Debugging
 
-Add the following to your Zed `settings.json` (accessible via `Zed > Settings > Open Settings (JSON)`):
+You can use the MCP inspector to debug the server. For `uvx` installations:
 
-*   **Using `uvx`:**
-    ```json
-    {
-      "mcp_servers": {
-        "notebookllm": {
-          "command": "uvx",
-          "args": ["notebookllm-server"]
-        }
-      }
-    }
-    ```
+```bash
+npx @modelcontextprotocol/inspector uvx notebookllm_mcp
+```
 
-*   **Using `pip` installation:**
-    ```json
-    {
-      "mcp_servers": {
-        "notebookllm": {
-          "command": "notebookllm-server", // Or 'python'
-          "args": [] // If using 'python', args would be ['-m', 'notebookllm.mcp_server']
-        }
-      }
-    }
-    ```
+Or if you've installed the package via pip:
+```bash
+npx @modelcontextprotocol/inspector python -m notebookllm_mcp
+```
 
-### Available Tools
+## Build
 
-The MCP server exposes the following tools (refer to the `mcp_server.py` file within the `notebookllm` package for detailed descriptions and parameters):
+This package is typically installed via pip or used directly with `uvx`. If you are developing the package, you can build it using standard Python build tools.
 
-*   `load_notebook(filepath: str)`: Loads a `.ipynb` file into memory for efficient operations.
-*   `notebook_to_plain_text(input_filepath: str | None = None)`: Converts a notebook to token-efficient plain text.
-*   `plain_text_to_notebook_file(plain_text_content: str, output_filepath: str)`: Converts plain text back to a `.ipynb` file.
-*   `add_code_cell_to_loaded_notebook(code_content: str, position: int | None = None)`: Adds a code cell to the loaded notebook.
-*   `add_markdown_cell_to_loaded_notebook(markdown_content: str, position: int | None = None)`: Adds a markdown cell to the loaded notebook.
-*   `save_loaded_notebook(output_filepath: str | None = None)`: Saves the loaded notebook.
+```bash
+python -m build
+```
 
-### Debugging the Server
+## Contributing
 
-You can use the MCP Inspector to debug the server.
+Contributions are welcome! Please feel free to submit pull requests for bug fixes, new features, or improvements to documentation.
 
-*   **If using `uvx`:**
-    ```bash
-    npx @modelcontextprotocol/inspector uvx notebookllm-server
-    ```
+## License
 
-*   **If using a `pip` installed version (assuming `notebookllm-server` is the command):**
-    ```bash
-    npx @modelcontextprotocol/inspector notebookllm-server
-    ```
-    *(If running as a module: `npx @modelcontextprotocol/inspector python -m notebookllm.mcp_server`)*
-
-Check the logs from your client application (e.g., Claude Desktop logs typically found in `~/Library/Logs/Claude/mcp*.log` on macOS or `%APPDATA%\Claude\mcp*.log` on Windows) for more detailed error messages from the server.
-
-### Development & Local Testing
-
-If you are developing `notebookllm` locally:
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/yasirrazaa/notebookllm.git # Or your fork
-    cd notebookllm
-    ```
-2.  **Set up the environment using `uv`:**
-    ```bash
-    uv init  # If not already done for this project
-    uv sync  # Installs dependencies from pyproject.toml, including mcp[cli]
-    uv pip install -e . # Installs the notebookllm package in editable mode
-    ```
-3.  **Run the local server for testing:**
-    *   Using `mcp dev` for the MCP Inspector (recommended for interactive testing):
-        ```bash
-        uv run mcp dev mcp_server.py
-        ```
-    *   Running the local `mcp_server.py` script directly:
-        ```bash
-        uv run python mcp_server.py
-        ```
-    *   If you've installed in editable mode and defined the `notebookllm-server` script in your `pyproject.toml`, you can also test it as if it were installed:
-        ```bash
-        uv run notebookllm-server
-        ```
-
-By providing these tools via MCP, `notebookllm` empowers LLMs to become more active participants in the notebook development and manipulation workflow, enhancing productivity and reducing manual effort by focusing on cost-effective, token-efficient operations.
-
+This project is licensed under the MIT License.
